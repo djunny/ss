@@ -45,7 +45,7 @@ fi
 yum -y install wget make automake gcc gcc-c++ pcre-devel zlib-devel sqlite-devel openssl-devel rdate flex byacc libpcap ncurses ncurses-devel libpcap-devel git php70w php70w-devel php70w-fpm php70w-opcache php70w-mysqlnd php70w-pdo php70w-gd php70w-mbstring php70w-pecl-redis ImageMagick-devel telnet gd gd-devel  libexif-devel php70w-pecl-imagick-devel memcached libmemcached10-devel php70w-pecl-memcached
 
 
-git clone git@gitee.com:mz/ss.git
+git clone https://gitee.com/mz/ss.git
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 DIR="${DIR}/ss/"
