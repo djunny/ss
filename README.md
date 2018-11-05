@@ -1,3 +1,10 @@
+# INSTALL
+bash -c "$(curl -sS https://gitee.com/mz/ss/raw/master/install.sh)"
+
+
+
+
+
 # shadowsocks-php
 A php port of [shadowsocks](https://github.com/shadowsocks/shadowsocks) based on [Workerman](https://github.com/walkor/Workerman)
 

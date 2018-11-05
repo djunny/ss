@@ -15,7 +15,7 @@ $PROCESS_COUNT = 3;
 
 $conf_file = '../../conf';
 if(is_file($conf_file)){
-	$conf_content = file_get_contents($conf_file);
+	$conf_content = trim(file_get_contents($conf_file));
 	$conf_content = preg_replace('#[\r\n]+#is', '&', $conf_content);
 	parse_str($conf_content,$conf);
 	foreach($conf as $key=>$val){
