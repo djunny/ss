@@ -13,7 +13,7 @@ $LOCAL_PORT = 1080;
 $PROCESS_COUNT = 3;
 
 
-$conf_file = '../../conf';
+$conf_file = __DIR__ . '/../../conf';
 if(is_file($conf_file)){
 	$conf_content = trim(file_get_contents($conf_file));
 	$conf_content = preg_replace('#[\r\n]+#is', '&', $conf_content);
