@@ -34,7 +34,7 @@ echo $pass
 
 
 VER=`grep -oE '[0-9]+\.[0-9]+' /etc/redhat-release`
-if [[ VER>6 ]]; then
+if [[ VER>=7 ]]; then
     rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
 else
