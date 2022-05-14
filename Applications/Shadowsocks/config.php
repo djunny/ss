@@ -12,6 +12,7 @@ $LOCAL_PORT = 1080;
 // 启动多少进程
 $PROCESS_COUNT = 3;
 
+$ip_list = explode("\n", $_SERVER['IP_LIST']);
 
 $conf_file = __DIR__ . '/../../conf';
 if(is_file($conf_file)){

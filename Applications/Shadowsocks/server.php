@@ -11,8 +11,10 @@
  * @link      http://www.workerman.net/
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  */
+
 use \Workerman\Worker;
 use \Workerman\Connection\AsyncTcpConnection;
+use \Workerman\Connection\TcpConnection;
 use \Workerman\Autoloader;
 
 // 自动加载类
@@ -44,21 +46,33 @@ $worker = new Worker('tcp://0.0.0.0:' . $PORT);
 // 进程数量
 $worker->count = $PROCESS_COUNT;
 // 名称
-$worker->name = 'shadowsocks-server';
+$worker->name = 'ss-server';
 // 如果加密算法为table，初始化table
-if ($METHOD == 'table') {
+$context_option = [];
+if ($METHOD === 'table') {
     Encryptor::initTable($PASSWORD);
 }
+function isLocalIPAddress($IPAddress) {
+    if ($IPAddress === '127.0.0.1') {
+        return true;
+    }
+    return (!filter_var($IPAddress, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE));
+}
+
 // 当shadowsocks客户端连上来时
-$worker->onConnect = function ($connection) use ($METHOD, $PASSWORD) {
+$worker->onConnect = function (TcpConnection $connection) use ($config) {
+    // echo 'IP=' . $connection->getLocalIp(), PHP_EOL;
     // 设置当前连接的状态为STAGE_INIT，初始状态
     $connection->stage = STAGE_INIT;
     // 初始化加密类
-    $connection->encryptor = new Encryptor($PASSWORD, $METHOD);
+    $connection->encryptor   = new Encryptor($config['password'], $config['method']);
+    $connection->local_ip    = $connection->getLocalIP();
+    $connection->is_local_ip = isLocalIPAddress($connection->local_ip);
 };
 
+
 // 当shadowsocks客户端发来消息时
-$worker->onMessage = function ($connection, $buffer) {
+$worker->onMessage = function ($connection, $buffer) use ($ip_list) {
     // 判断当前连接的状态
     switch ($connection->stage) {
         // 如果不是STAGE_STREAM，则尝试解析实际的请求地址及端口
@@ -82,8 +96,21 @@ $worker->onMessage = function ($connection, $buffer) {
             if (empty($host) || empty($port)) {
                 return $connection->close();
             }
+            // 控制出口 IP
+            $context_option = [];
+            if ($ip_list && !$connection->is_local_ip) {
+                $out_ip         = $ip_list[array_rand($ip_list)];
+                $context_option = [
+                    'socket' => [
+                        // ip必须是本机网卡ip，并且能访问对方主机，否则无效
+                        // 'bindto' => $connection->local_ip . ':0',
+                        'bindto' => $out_ip . ':0',
+                    ],
+                ];
+                //log::info('bindto=' . $out_ip . ':0');
+            }
             // 异步建立与实际服务器的远程连接
-            $remote_connection           = new AsyncTcpConnection($address);
+            $remote_connection           = new AsyncTcpConnection($address, $context_option);
             $connection->opposite        = $remote_connection;
             $remote_connection->opposite = $connection;
             // 流量控制，远程连接的发送缓冲区满，则停止读取shadowsocks客户端发来的数据
