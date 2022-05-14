@@ -60,12 +60,12 @@ function isLocalIPAddress($IPAddress) {
 }
 
 // 当shadowsocks客户端连上来时
-$worker->onConnect = function (TcpConnection $connection) use ($config) {
+$worker->onConnect = function (TcpConnection $connection) use ($PASSWORD, $METHOD) {
     // echo 'IP=' . $connection->getLocalIp(), PHP_EOL;
     // 设置当前连接的状态为STAGE_INIT，初始状态
     $connection->stage = STAGE_INIT;
     // 初始化加密类
-    $connection->encryptor   = new Encryptor($config['password'], $config['method']);
+    $connection->encryptor   = new Encryptor($PASSWORD, $METHOD);
     $connection->local_ip    = $connection->getLocalIP();
     $connection->is_local_ip = isLocalIPAddress($connection->local_ip);
 };
